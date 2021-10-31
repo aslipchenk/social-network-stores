@@ -1,28 +1,22 @@
-import { CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { JwtService } from '@nestjs/jwt';
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtErrorMessage } from '../config/constats';
 
-export class JwtAuthGuard implements CanActivate {
-
-  constructor(private jwtService: JwtService ) {
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
   }
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const req = context.switchToHttp().getRequest();
-    try {
-      const authHeader = req.headers.authorization;
-      const [bearer, token] = authHeader.split(' ');
-      if (bearer !== "Bearer" || !token) {
-        throw new UnauthorizedException({ message: "User is not authenticated" })
-      }
-      console.log(this);
-      console.log(JwtService);
-      const user = this.jwtService.verify(token);
-      console.log(bearer, token);
-      req.user = user;
-      return true;
-    } catch (e) {
-      console.log(e);
-      throw new UnauthorizedException({ message: "User is not authenticated" });
+
+  handleRequest(err, user, info) {
+    if (info.message === JwtErrorMessage.expired) {}
+    if (err || !user) {
+      throw err || new UnauthorizedException();
     }
+    return user;
   }
 }

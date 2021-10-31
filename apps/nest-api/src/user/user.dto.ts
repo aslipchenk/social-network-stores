@@ -27,6 +27,16 @@ export class UpdateUserDto {
   password?: string;
 }
 
+export class LoginUserDto {
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
 export class UserDto {
   @IsString()
   firstName: string;

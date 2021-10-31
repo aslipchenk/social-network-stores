@@ -2,8 +2,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Connection, Repository } from 'typeorm';
-import { UserDto } from '../user/user.dto';
-import { hash } from 'bcrypt';
+import { LoginUserDto, UserDto } from '../user/user.dto';
+import { compare } from 'bcrypt';
 import { PostgresErrorCode } from '../config/constats';
 import * as uuid from 'uuid';
 import { MailService } from '../mail/mail.service';
@@ -35,14 +35,11 @@ export class AuthService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const password: string = registrateUserDto.password;
-    const hashedPassword = await hash(password, 16);
     let userDtoOut = null;
     const activationLink: string = uuid.v4();
     try {
       userDtoOut = await queryRunner.manager.save(User, {
         ...registrateUserDto,
-        password: hashedPassword,
         activationLink,
       });
     } catch (e) {
@@ -85,6 +82,25 @@ export class AuthService {
     }
     await this.usersRepository.save({ ...user, status: "active", activationLink: null })
   }
-  login() {}
-  logOut() {}
+
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.usersRepository.findOne({ email: loginUserDto.email })
+    if (!user) {
+      throw new HttpException("Wrong email or password", HttpStatus.BAD_REQUEST);
+    }
+
+    const passwordEquals: boolean = await compare(loginUserDto.password, user.password);
+    if (!passwordEquals) {
+      throw new HttpException("Wrong email or password", HttpStatus.BAD_REQUEST);
+    }
+
+    const tokens = this.tokenService.generateTokens(user.id);
+    await this.tokenService.saveToken(user.id, tokens.refreshToken);
+
+    return { ...tokens }
+  }
+
+  logout() {
+
+  }
 }

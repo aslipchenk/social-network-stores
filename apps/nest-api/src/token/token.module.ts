@@ -23,6 +23,6 @@ import { TokenEntity } from '../entities/token.entity';
     }),
   ],
   providers: [TokenService],
-  exports: [TokenService],
+  exports: [TokenService, JwtModule],
 })
 export class TokenModule {}

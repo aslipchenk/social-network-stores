@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Get, Put, Param, Req, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Param, Req, Res, UseGuards, Session } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserDto } from '../user/user.dto';
+import { UserDto, LoginUserDto } from '../user/user.dto';
 import { User } from '../entities/user.entity';
 import { Request, Response } from 'express';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -15,10 +16,15 @@ export class AuthController {
   }
 
   @Post('login')
-  async login() {}
+  async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
+    return await this.authService.login(loginUserDto);
+  }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout() {}
+  async logout(@Req() req) {
+    console.log(req.cookies);
+  }
 
   @Get('refresh')
   async refresh() {}

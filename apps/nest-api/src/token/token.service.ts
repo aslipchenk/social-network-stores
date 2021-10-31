@@ -42,6 +42,17 @@ export class TokenService {
       user: userId,
       refreshToken,
     });
+
     return token;
+  }
+
+  async deleteToken(userId: string) {
+    const tokenData = await this.tokenRepository.findOne({ user: userId });
+    if (!tokenData) {
+      return { operation: "success", warning: "Token does not exist or already deleted" };
+    }
+
+    await this.tokenRepository.delete({ user: userId });
+    return { operation: "success" };
   }
 }

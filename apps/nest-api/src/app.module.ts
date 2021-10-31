@@ -8,6 +8,7 @@ import { PostModule } from './post/post.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 import { TokenModule } from './token/token.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
