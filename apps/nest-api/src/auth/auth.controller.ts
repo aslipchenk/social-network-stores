@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Param, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDto, LoginUserDto } from '../user/user.dto';
 import { User } from '../entities/user.entity';
@@ -36,6 +36,7 @@ export class AuthController {
     return { operation: "success" };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('activate/:link')
   async activate(@Param('link') link: string, @Res() res: Response): Promise<any> {
     await this.authService.activate(link);
