@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Connection, Repository } from 'typeorm';
 import { LoginUserDto, UserDto } from '../user/user.dto';
-import { compare } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { PostgresErrorCode } from '../config/constats';
 import * as uuid from 'uuid';
 import { MailService } from '../mail/mail.service';
@@ -37,10 +37,13 @@ export class AuthService {
 
     let userDtoOut = null;
     const activationLink: string = uuid.v4();
+    const password = await hash(registrateUserDto.password, 10);
+
     try {
       userDtoOut = await queryRunner.manager.save(User, {
         ...registrateUserDto,
         activationLink,
+        password,
       });
     } catch (e) {
       await queryRunner.rollbackTransaction();
@@ -96,11 +99,18 @@ export class AuthService {
 
     const tokens = this.tokenService.generateTokens(user.id);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
-
     return { ...tokens }
   }
 
-  logout() {
+  async logout(accessToken: string): Promise<Array<string>> {
+    await this.tokenService.deleteToken(accessToken)
+    return AuthService.getCookiesForLogOut();
+  }
 
+  private static getCookiesForLogOut() {
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0'
+    ]
   }
 }

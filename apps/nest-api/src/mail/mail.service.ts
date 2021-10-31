@@ -18,7 +18,7 @@ export class MailService {
         }
       );
     } catch (e) {
-      throw new HttpException(`Send activation link failed cause: ${e.message}`, HttpStatus.BAD_REQUEST,)
+      throw new HttpException(`Send activation link failed cause: ${e.message}`, HttpStatus.BAD_REQUEST);
     }
   }
 }

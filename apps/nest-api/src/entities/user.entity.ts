@@ -3,11 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  OneToMany, BeforeInsert
+  OneToMany
 } from 'typeorm';
 import { PostEntity } from './post.entity';
 import { possibleUserStatus } from '../config/constats';
-import { hash } from 'bcrypt';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user' })
@@ -37,11 +36,6 @@ export class User {
 
   @Column({ type: 'varchar', nullable: true })
   activationLink: string;
-
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await hash(this.password, 10);
-  }
 
   @OneToMany(() => PostEntity, (post) => post.user)
   posts: PostEntity[];
