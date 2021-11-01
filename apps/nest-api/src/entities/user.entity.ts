@@ -3,23 +3,26 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  OneToMany,
+  OneToMany
 } from 'typeorm';
 import { PostEntity } from './post.entity';
 import { possibleUserStatus } from '../config/constats';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @CreateDateColumn({ type: 'date', nullable: false })
   registrationDate: string;
 
   @Column({ unique: true, type: 'varchar' })
+  @Exclude()
   email: string;
 
   @Column({ type: 'varchar' })
+  @Exclude()
   password: string;
 
   @Column({ type: 'varchar', nullable: false, length: 100 })

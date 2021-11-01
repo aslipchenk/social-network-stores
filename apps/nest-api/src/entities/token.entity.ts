@@ -3,7 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToOne,
-  JoinColumn,
+  JoinColumn
 } from 'typeorm';
 import { User } from './user.entity';
 
@@ -11,9 +11,6 @@ import { User } from './user.entity';
 export class TokenEntity {
   @PrimaryGeneratedColumn('uuid')
   id: number;
-
-  @Column({ type: 'varchar' })
-  accessToken: string;
 
   @Column({ type: 'varchar' })
   refreshToken: string;

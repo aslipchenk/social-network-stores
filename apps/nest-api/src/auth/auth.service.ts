@@ -1,13 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { Repository } from 'typeorm';
-import { UserDto } from '../user/user.dto';
-import { hash } from 'bcrypt';
+import { Connection, Repository } from 'typeorm';
+import { LoginUserDto, UserDto } from '../user/user.dto';
+import { compare, hash } from 'bcrypt';
 import { PostgresErrorCode } from '../config/constats';
 import * as uuid from 'uuid';
 import { MailService } from '../mail/mail.service';
 import { TokenService } from '../token/token.service';
+import { URL } from 'url';
 
 @Injectable()
 export class AuthService {
@@ -16,9 +17,10 @@ export class AuthService {
     private usersRepository: Repository<User>,
     private readonly mailService: MailService,
     private readonly tokenService: TokenService,
+    private readonly connection: Connection,
   ) {}
 
-  async registration(registrateUserDto: UserDto): Promise<any> {
+  async registration(registrateUserDto: UserDto, requestUrl: string): Promise<any> {
     const email: string = registrateUserDto.email;
     const candidate = await this.usersRepository.findOne({
       email,
@@ -29,15 +31,22 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const password: string = registrateUserDto.password;
-    const hashedPassword = await hash(password, 16);
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     let userDtoOut = null;
+    const activationLink: string = uuid.v4();
+    const password = await hash(registrateUserDto.password, 10);
+
     try {
-      userDtoOut = await this.usersRepository.save({
+      userDtoOut = await queryRunner.manager.save(User, {
         ...registrateUserDto,
-        password: hashedPassword,
+        activationLink,
+        password,
       });
     } catch (e) {
+      await queryRunner.rollbackTransaction();
       if (e?.code === PostgresErrorCode.UniqueViolation) {
         throw new HttpException(
           'User with that email is already exists',
@@ -48,10 +57,19 @@ export class AuthService {
         `Save user using userRepository save failed ${e?.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-      console.log(e);
     }
-    const activationLink: string = uuid.v4();
-    await this.mailService.sendActivationMail(email, activationLink);
+
+    const activationUrl = new URL(requestUrl);
+    activationUrl.pathname = "/auth/activate/" + activationLink;
+    try {
+      await this.mailService.sendActivationMail(email, activationUrl.toString());
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    }
+
+    await queryRunner.commitTransaction();
+    await queryRunner.release();
 
     const tokens = this.tokenService.generateTokens(userDtoOut.id);
     await this.tokenService.saveToken(userDtoOut.id, tokens.refreshToken);
@@ -62,7 +80,37 @@ export class AuthService {
 
   async activate(link: string) {
     const user = await this.usersRepository.findOne({ activationLink: link });
+    if (!user) {
+      throw new HttpException(`User with activation link ${link} was not found`, HttpStatus.BAD_REQUEST);
+    }
+    await this.usersRepository.save({ ...user, status: "active", activationLink: null })
   }
-  login() {}
-  logOut() {}
+
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.usersRepository.findOne({ email: loginUserDto.email })
+    if (!user) {
+      throw new HttpException("Wrong email or password", HttpStatus.BAD_REQUEST);
+    }
+
+    const passwordEquals: boolean = await compare(loginUserDto.password, user.password);
+    if (!passwordEquals) {
+      throw new HttpException("Wrong email or password", HttpStatus.BAD_REQUEST);
+    }
+
+    const tokens = this.tokenService.generateTokens(user.id);
+    await this.tokenService.saveToken(user.id, tokens.refreshToken);
+    return { ...tokens }
+  }
+
+  async logout(accessToken: string): Promise<Array<string>> {
+    await this.tokenService.deleteToken(accessToken)
+    return AuthService.getCookiesForLogOut();
+  }
+
+  private static getCookiesForLogOut() {
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0'
+    ]
+  }
 }
