@@ -1,0 +1,65 @@
+.searchBox {
+  display: flex;
+  width: 20%;
+  height: 40px;
+  background: #1f2940;
+  border-radius: 50px;
+  padding: 5px;
+  transition: .3s ease-in-out;
+  transition-property: width;
+  overflow: hidden;
+}
+
+.inputGroup {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+}
+
+.formControl {
+  height: inherit;
+  border: none;
+  background: 0 0;
+  font-size: 1rem;
+  font-weight: 500;
+  padding-left: 0;
+  padding: 5px 20px;
+}
+
+.formControl:focus::placeholder {
+  color: transparent;
+}
+
+.fcBtn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: .3s ease;
+  transition-property: background,color;
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .03rem;
+  height: 100%;
+  border-radius: 50px;
+  padding: 0 7px;
+  box-shadow: 0 0 5px -1px #696ffb;
+  transition-duration: .3s;
+}
+
+.formControl:focus {
+  color: white;
+  outline: 0;
+  box-shadow: none;
+  border: none;
+}
+
+.mdiSet::before {
+  display: inline-block;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  font-size: inherit;
+  text-rendering: auto;
+  line-height: inherit;
+  -webkit-font-smoothing: antialiased;
+}

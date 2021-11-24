@@ -7,7 +7,7 @@ import { TokenService } from '../token/token.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(
-  Strategy,
+  Strategy
 ) {
   constructor(
     private readonly configService: ConfigService,
@@ -18,11 +18,11 @@ export class JwtStrategy extends PassportStrategy(
         return request?.cookies?.Refresh;
       }]),
       secretOrKey: configService.get('JWT_REFRESH_SECRET'),
-      passReqToCallback: true,
+      passReqToCallback: true
     });
   }
 
-  async validate(request: Request, payload: any) {
-    return this.tokenService.verifyToken(request, payload.userId);
+  async validate(request: Request) {
+    return this.tokenService.verifyToken(request);
   }
 }

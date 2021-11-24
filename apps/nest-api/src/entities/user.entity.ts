@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  OneToMany
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { PostEntity } from './post.entity';
 import { possibleUserStatus } from '../config/constats';
 import { Exclude } from 'class-transformer';
@@ -36,6 +30,9 @@ export class User {
 
   @Column({ type: 'varchar', nullable: true })
   activationLink: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  temporaryPassword?: string;
 
   @OneToMany(() => PostEntity, (post) => post.user)
   posts: PostEntity[];

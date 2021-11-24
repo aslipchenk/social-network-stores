@@ -1,11 +1,10 @@
 import {
   Controller,
-  Post,
   Get,
   Body,
   Param,
   Delete,
-  Put, UseGuards
+  Put, UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { User } from '../entities/user.entity';
