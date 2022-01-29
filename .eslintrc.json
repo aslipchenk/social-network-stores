@@ -2,6 +2,7 @@
   "root": true,
   "ignorePatterns": ["**/*"],
   "plugins": ["@nrwl/nx"],
+  "parser": "@typescript-eslint/parser",
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -23,12 +24,18 @@
     },
     {
       "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nrwl/nx/typescript"],
-      "rules": {}
+      "extends":  [    "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended"
+      ],//["airbnb", "airbnb-typescript"],//["plugin:@nrwl/nx/javascript"],
+      "rules": {
+        "no-console": "warn",
+        "prefer-regex-literals": "off"
+      }
     },
     {
       "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nrwl/nx/javascript"],
+      "extends": ["plugin:@typescript-eslint/recommended",         "plugin:prettier/recommended"
+      ],  //["plugin:eslint-config-airbnb", "plugin:eslint-config-airbnb-typescript"],//["plugin:@nrwl/nx/javascript"],
       "rules": {}
     }
   ]

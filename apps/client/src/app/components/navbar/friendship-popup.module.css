@@ -1,0 +1,46 @@
+.container {
+  width: 300px;
+  height: 400px;
+  position: absolute;
+  z-index: 10000;
+  top: 100%;
+  left: 50%;
+  border-radius: 36px;
+  padding: 16px;
+  background-color: #1f2940;
+}
+
+.content {
+  display: flex;
+  justify-content: left;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.name {
+  font-weight: bold;
+  margin: 0;
+}
+
+.addToFriendContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: baseline;
+}
+
+.addToFriendButton {
+  font-weight: bolder;
+  font-size: small;
+  color: aquamarine;
+}
+
+.addToFriendButton:hover {
+  color: aqua;
+  text-decoration: underline;
+}
+
+.image {
+  margin-right: 8px;
+  border-radius: 16px;
+}

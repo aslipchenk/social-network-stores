@@ -8,7 +8,6 @@ import { TokenEntity } from '../entities/token.entity';
 import { hash } from 'bcrypt';
 import { Request } from 'express';
 
-
 @Injectable()
 export class TokenService {
   constructor(
@@ -16,25 +15,30 @@ export class TokenService {
     private tokenRepository: Repository<TokenEntity>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService
-  ) {
-  }
+  ) {}
 
   generateTokens(userId: string) {
     const payload: TokenPayload = { userId };
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
-      expiresIn: `${this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')}s`
+      expiresIn: `${this.configService.get(
+        'JWT_ACCESS_TOKEN_EXPIRATION_TIME'
+      )}s`,
     });
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: `${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}s`,
-      secret: this.configService.get('JWT_REFRESH_SECRET')
+      expiresIn: `${this.configService.get(
+        'JWT_REFRESH_TOKEN_EXPIRATION_TIME'
+      )}s`,
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
     });
 
-    const refreshCookie = `Refresh=${refreshToken}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}`;
+    const refreshCookie = `Refresh=${refreshToken}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_REFRESH_TOKEN_EXPIRATION_TIME'
+    )}`;
     return {
       refreshCookie,
       accessToken,
-      refreshToken
+      refreshToken,
     };
   }
 
@@ -43,41 +47,47 @@ export class TokenService {
     const token = await this.tokenRepository.findOne({ user: userId });
 
     if (token) {
-      return await this.tokenRepository.update({ user: userId }, { refreshToken: hashedToken });
+      return await this.tokenRepository.update(
+        { user: userId },
+        { refreshToken: hashedToken }
+      );
     }
     return await this.tokenRepository.save({
       user: userId,
-      refreshToken: hashedToken
+      refreshToken: hashedToken,
     });
-    ;
   }
 
-  async verifyToken(request: Request): Promise<boolean> {
+  async verifyToken(request: Request): Promise<any> {
     const accessToken = request.headers.authorization.split(' ')[1];
     let isAccessTokenValid: boolean | JwtVerifyOptions = false;
     try {
-      isAccessTokenValid = this.jwtService.verify(accessToken, { secret: this.configService.get('JWT_ACCESS_SECRET') });
+      isAccessTokenValid = this.jwtService.verify(accessToken, {
+        secret: this.configService.get('JWT_ACCESS_SECRET'),
+      });
     } catch (e) {
       return false;
     }
-
     if (isAccessTokenValid) {
-      return true;
+      return { id: isAccessTokenValid.userId, ...isAccessTokenValid };
     }
     return false;
   }
 
   async verifyRefreshToken(refreshToken: string) {
-    this.jwtService.verify(refreshToken, { secret: this.configService.get('JWT_REFRESH_SECRET') });
+    this.jwtService.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+    });
 
     return this.jwtService.decode(refreshToken);
-    ;
   }
 
   async generateAccessToken(payload: any) {
     return this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
-      expiresIn: `${this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')}s`
+      expiresIn: `${this.configService.get(
+        'JWT_ACCESS_TOKEN_EXPIRATION_TIME'
+      )}s`,
     });
   }
 
@@ -87,7 +97,10 @@ export class TokenService {
 
     const tokenData = await this.tokenRepository.findOne({ user: userId });
     if (!tokenData) {
-      return { operation: 'success', warning: 'Token does not exist or already deleted' };
+      return {
+        operation: 'success',
+        warning: 'Token does not exist or already deleted',
+      };
     }
     await this.tokenRepository.delete({ user: userId });
     return {};

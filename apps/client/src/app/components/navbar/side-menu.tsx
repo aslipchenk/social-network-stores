@@ -2,70 +2,94 @@ import * as React from 'react';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
 import PeopleIcon from '@mui/icons-material/People';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import LayersIcon from '@mui/icons-material/Layers';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import MessageIcon from '@mui/icons-material/Message';
 import Newspaper from '@mui/icons-material/Newspaper';
+import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
+import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
+import GamesIcon from '@mui/icons-material/Games';
+import { Link } from 'react-router-dom';
 
 export const mainListItems = (
   <div>
-    <ListItem button>
-      <ListItemIcon>
-        <DashboardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Main Page" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <Newspaper />
-      </ListItemIcon>
-      <ListItemText primary="News" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Friends" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <BarChartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Messages" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <LayersIcon />
-      </ListItemIcon>
-      <ListItemText primary="Integrations" />
-    </ListItem>
+    <Link to={'/home'}>
+      <ListItem button>
+        <ListItemIcon>
+          <DashboardIcon />
+        </ListItemIcon>
+        <ListItemText primary="Main Page" />
+      </ListItem>
+    </Link>
+    <Link to='/news'>
+      <ListItem button>
+        <ListItemIcon>
+          <Newspaper />
+        </ListItemIcon>
+        <ListItemText primary="News" />
+      </ListItem>
+    </Link>
+    <Link to="/friends">
+      <ListItem button>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Drinking Companions" />
+      </ListItem>
+    </Link>
+    <Link to="/messages">
+      <ListItem button>
+        <ListItemIcon>
+          <MessageIcon />
+        </ListItemIcon>
+        <ListItemText primary="Messages" />
+      </ListItem>
+    </Link>
+    <Link to="/music">
+      <ListItem button>
+        <ListItemIcon>
+          <LibraryMusicIcon />
+        </ListItemIcon>
+        <ListItemText primary="Music" />
+      </ListItem>
+    </Link>
+    <Link to="/video">
+      <ListItem button>
+        <ListItemIcon>
+          <VideoCameraBackIcon />
+        </ListItemIcon>
+        <ListItemText primary="Video" />
+      </ListItem>
+    </Link>
+    <Link to="/peoples">
+      <ListItem button>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="All Alcoholics" />
+      </ListItem>
+    </Link>
   </div>
 );
 
 export const secondaryListItems = (
   <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
+    <Link to="applications">
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <GamesIcon />
       </ListItemIcon>
-      <ListItemText primary="Messages" />
+      <ListItemText primary="Applications" />
     </ListItem>
+    </Link>
+    <Link to="settings">
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Last quarter" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
+        <SettingsApplicationsIcon />
       </ListItemIcon>
       <ListItemText primary="Settings" />
     </ListItem>
+    </Link>
   </div>
 );

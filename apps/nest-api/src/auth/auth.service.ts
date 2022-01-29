@@ -19,13 +19,15 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly tokenService: TokenService,
     private readonly connection: Connection
-  ) {
-  }
+  ) {}
 
-  async registration(registrateUserDto: UserDto, requestUrl: string): Promise<any> {
+  async registration(
+    registrateUserDto: UserDto,
+    requestUrl: string
+  ): Promise<any> {
     const email: string = registrateUserDto.email;
     const candidate = await this.usersRepository.findOne({
-      email
+      email,
     });
     if (candidate)
       throw new HttpException(
@@ -45,7 +47,7 @@ export class AuthService {
       userDtoOut = await queryRunner.manager.save(User, {
         ...registrateUserDto,
         activationLink,
-        password
+        password,
       });
     } catch (e) {
       await queryRunner.rollbackTransaction();
@@ -64,7 +66,10 @@ export class AuthService {
     const activationUrl = new URL(requestUrl);
     activationUrl.pathname = '/auth/activate/' + activationLink;
     try {
-      await this.mailService.sendActivationMail(email, activationUrl.toString());
+      await this.mailService.sendActivationMail(
+        email,
+        activationUrl.toString()
+      );
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;
@@ -83,27 +88,47 @@ export class AuthService {
   async activate(link: string) {
     const user = await this.usersRepository.findOne({ activationLink: link });
     if (!user) {
-      throw new HttpException(`User with activation link ${link} was not found`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `User with activation link ${link} was not found`,
+        HttpStatus.BAD_REQUEST
+      );
     }
-    await this.usersRepository.save({ ...user, status: 'active', activationLink: null });
+    await this.usersRepository.save({
+      ...user,
+      status: 'active',
+      activationLink: null,
+    });
   }
 
   async login(loginUserDto: LoginUserDto) {
-    const user = await this.usersRepository.findOne({ email: loginUserDto.email });
+    const user = await this.usersRepository.findOne({
+      email: loginUserDto.email,
+    });
     if (!user) {
-      throw new HttpException('Wrong email or password', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Wrong email or password',
+        HttpStatus.BAD_REQUEST
+      );
     }
-
-    let passwordEquals: boolean = await compare(loginUserDto.password, user.password);
+    let passwordEquals: boolean = await compare(
+      loginUserDto.password,
+      user.password
+    );
     let { status } = user;
 
     if (!passwordEquals && user.temporaryPassword) {
       status = 'loginByTemporaryPassword';
-      passwordEquals = await compare(loginUserDto.password, user.temporaryPassword);
+      passwordEquals = await compare(
+        loginUserDto.password,
+        user.temporaryPassword
+      );
     }
 
     if (!passwordEquals) {
-      throw new HttpException('Wrong email or password', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Wrong email or password',
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const tokens = this.tokenService.generateTokens(user.id);
@@ -118,12 +143,15 @@ export class AuthService {
     return AuthService.getCookiesForLogOut();
   }
 
-  async authMe(refreshToken: string) {
+  async authMe(refreshToken: string, req: any) {
     let payload = null;
     try {
       payload = await this.tokenService.verifyRefreshToken(refreshToken);
     } catch (e) {
-      throw new HttpException('User is not authenticated', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'User is not authenticated',
+        HttpStatus.UNAUTHORIZED
+      );
     }
 
     let user = null;
@@ -133,7 +161,14 @@ export class AuthService {
       throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
     }
 
-    const token = await this.tokenService.generateAccessToken({ userId: payload.userId });
+    if (!user) {
+      throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
+    }
+    req.session.user = user;
+
+    const token = await this.tokenService.generateAccessToken({
+      userId: payload.userId,
+    });
     return { token, ...payload, ...user };
   }
 
@@ -141,14 +176,20 @@ export class AuthService {
     const user = this.usersRepository.findOne({ email });
 
     if (!user) {
-      throw new HttpException('User with current email does not exits', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'User with current email does not exits',
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const temporaryPassword = randomBytes(8).toString('hex');
     const hashedTemporaryPassword = await hash(temporaryPassword, 10);
 
     await this.mailService.sendResetPasswordEmail(email, temporaryPassword);
-    await this.usersRepository.update({ email }, { temporaryPassword: hashedTemporaryPassword });
+    await this.usersRepository.update(
+      { email },
+      { temporaryPassword: hashedTemporaryPassword }
+    );
   }
 
   async resetPassword(dtoIn: any): Promise<void> {
@@ -159,12 +200,13 @@ export class AuthService {
     }
 
     const newPassword = await hash(dtoIn.password, 10);
-    await this.usersRepository.update({ id: dtoIn.userId }, { password: newPassword, temporaryPassword: null });
+    await this.usersRepository.update(
+      { id: dtoIn.userId },
+      { password: newPassword, temporaryPassword: null }
+    );
   }
 
   private static getCookiesForLogOut(): Array<string> {
-    return [
-      'Refresh=; HttpOnly; Path=/; Max-Age=0'
-    ];
+    return ['Refresh=; HttpOnly; Path=/; Max-Age=0'];
   }
 }

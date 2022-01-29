@@ -6,8 +6,13 @@ import SendResetPasswordMailForm from '../components/forms/reset-password/send-r
 import ResetPasswordForm from '../components/forms/reset-password/reset-password-form';
 import ToggleColorMode from '../theme-switcher';
 import NavBar from '../components/navbar/navbar';
+import PeoplesList from '../components/peoples/peoples-list';
+import Home from '../components/home/home';
 
-export const useRoutes = (isAuthenticated: boolean | undefined, accountStatus?: string | undefined) => {
+export const useRoutes = (
+  isAuthenticated: boolean | undefined,
+  accountStatus?: string | undefined
+) => {
   if (isAuthenticated) {
     if (accountStatus === 'banned') {
       return (
@@ -17,8 +22,7 @@ export const useRoutes = (isAuthenticated: boolean | undefined, accountStatus?: 
           </Route>
           <Redirect to="/" />
         </Switch>
-      )
-        ;
+      );
     }
 
     if (accountStatus === 'loginByTemporaryPassword') {
@@ -46,21 +50,37 @@ export const useRoutes = (isAuthenticated: boolean | undefined, accountStatus?: 
     }
 
     return (
-      <>
-      <NavBar />
-      <Switch>
-        <Route path="/about">
-          {/*<About />*/}
-        </Route>
-        <Route path="/users" exact>
-          {/*<Users />*/}
-        </Route>
-        <Route path="/home" exact>
-          {/*<Home />*/}
-        </Route>
-        <Redirect to="/home" />
-      </Switch>
-        </>
+      <NavBar>
+        <Switch>
+          <Route path="/about">{/*<About />*/}</Route>
+          <Route path="/news">{/*<About />*/}</Route>
+          <Route path="/friends" exact>
+            {/*<Users />*/}
+          </Route>
+          <Route path="/home" exact>
+            <Home />
+          </Route>
+          <Route path="/messages" exact>
+            {/*<Home />*/}
+          </Route>
+          <Route path="/music" exact>
+            {/*<Home />*/}
+          </Route>
+          <Route path="/videos" exact>
+            {/*<Home />*/}
+          </Route>
+          <Route path="/settings" exact>
+            {/*<Home />*/}
+          </Route>
+          <Route path="/applications" exact>
+            {/*<Home />*/}
+          </Route>
+          <Route path="/peoples" exact>
+            <PeoplesList />
+          </Route>
+          <Redirect to="/home" />
+        </Switch>
+      </NavBar>
     );
   }
 

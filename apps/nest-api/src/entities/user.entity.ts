@@ -1,7 +1,15 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { PostEntity } from './post.entity';
 import { possibleUserStatus } from '../config/constats';
 import { Exclude } from 'class-transformer';
+import { FriendEntity } from './friend.entity';
 
 @Entity({ name: 'user' })
 export class User {
@@ -34,6 +42,12 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   temporaryPassword?: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  avatarId: string;
+
   @OneToMany(() => PostEntity, (post) => post.user)
   posts: PostEntity[];
+
+  @ManyToMany(() => User, () => FriendEntity)
+  friends: User[];
 }
