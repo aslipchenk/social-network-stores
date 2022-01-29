@@ -19,3 +19,9 @@ body, html {
 *, ::after, ::before {
   box-sizing: border-box;
 }
+
+a:-webkit-any-link {
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}

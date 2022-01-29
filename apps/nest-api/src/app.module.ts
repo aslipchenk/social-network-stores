@@ -8,6 +8,7 @@ import { PostModule } from './post/post.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 import { TokenModule } from './token/token.module';
+import { FriendModule } from './friend/friend.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { TokenModule } from './token/token.module';
     AuthModule,
     MailModule,
     TokenModule,
+    FriendModule,
   ],
   controllers: [AppController],
   providers: [AppService],
